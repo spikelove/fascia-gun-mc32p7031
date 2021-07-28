@@ -1,25 +1,26 @@
 gplink-2.2.21 (Aug 12 2020)
-Map File - Created 2021-7-27  17:28:07
+Map File - Created 2021-7-28  17:22:57
  
                                  Section Info
                   Section       Type    Address   Location Size(Bytes)
                 ---------  ---------  ---------  ---------  ---------
                   STARTUP       code   00000000    program   0x000002
-  ID_MC32P7031_Demo_C_0_i       code   0x000001    program   0x000002
               c_interrupt       code   0x000008    program   0x00002a
-    code_MC32P7031_Demo_C       code   0x00001d    program   0x0004a2
-                   .cinit       code   0x00026e    program   0x000010
-    ID_MC32P7031_Demo_C_0      idata   0x000033       data   0x000001
+    code_MC32P7031_Demo_C       code   0x00001d    program   0x0008c4
+            code__mulchar       code   0x00047f    program   0x00003c
                 sharebank      udata   00000000       data   0x000007
    UDL_MC32P7031_Demo_C_0      udata   0x000007       data   0x00001a
-    UD_MC32P7031_Demo_C_2      udata   0x000021       data   0x000004
-    UD_MC32P7031_Demo_C_3      udata   0x000025       data   0x000004
-    UD_MC32P7031_Demo_C_4      udata   0x000029       data   0x000004
-    UD_MC32P7031_Demo_C_1      udata   0x00002d       data   0x000002
-    UD_MC32P7031_Demo_C_0      udata   0x00002f       data   0x000001
-    UD_MC32P7031_Demo_C_5      udata   0x000030       data   0x000001
-    UD_MC32P7031_Demo_C_6      udata   0x000031       data   0x000001
-    UD_MC32P7031_Demo_C_7      udata   0x000032       data   0x000001
+           UDL__mulchar_0      udata   0x000021       data   0x000005
+    UD_MC32P7031_Demo_C_0      udata   0x000026       data   0x000004
+    UD_MC32P7031_Demo_C_1      udata   0x00002a       data   0x000004
+    UD_MC32P7031_Demo_C_2      udata   0x00002e       data   0x000004
+    UD_MC32P7031_Demo_C_3      udata   0x000032       data   0x000004
+    UD_MC32P7031_Demo_C_4      udata   0x000036       data   0x000004
+    UD_MC32P7031_Demo_C_9      udata   0x00003a       data   0x000002
+    UD_MC32P7031_Demo_C_5      udata   0x00003c       data   0x000001
+    UD_MC32P7031_Demo_C_6      udata   0x00003d       data   0x000001
+    UD_MC32P7031_Demo_C_7      udata   0x00003e       data   0x000001
+    UD_MC32P7031_Demo_C_8      udata   0x00003f       data   0x000001
       UD_abs_mc32p7031_82      udata   0x000082       data   0x000001
       UD_abs_mc32p7031_83      udata   0x000083       data   0x000001
       UD_abs_mc32p7031_84      udata   0x000084       data   0x000001
@@ -69,13 +70,12 @@ Map File - Created 2021-7-27  17:28:07
                               Program Memory Usage
                                Start         End
                            ---------   ---------
-                            0x000001    0x000001
                             00000000    00000000
                             0x000008    0x00001c
-                            0x00001d    0x00026d
-                            0x00026e    0x000275
+                            0x00001d    0x00047e
+                            0x00047f    0x00049c
  
-                            624 program addresses used
+                            1174 program addresses used
  
                               Symbols
                      Name    Address   Location    Storage File
@@ -87,96 +87,142 @@ Map File - Created 2021-7-27  17:28:07
                     STK02   0x000004       data     extern MC32P7031_Demo_C.asm
                     STK01   0x000005       data     extern MC32P7031_Demo_C.asm
                     STK00   0x000006       data     extern MC32P7031_Demo_C.asm
-              _changl_Num   0x00002f       data     extern MC32P7031_Demo_C.asm
-           _ADC_num_value   0x00002d       data     extern MC32P7031_Demo_C.asm
-            _timer0_count   0x000021       data     extern MC32P7031_Demo_C.asm
-          _key_down_count   0x000025       data     extern MC32P7031_Demo_C.asm
-         _key_press_count   0x000029       data     extern MC32P7031_Demo_C.asm
-                    _gear   0x000030       data     extern MC32P7031_Demo_C.asm
-                 _IO_buff   0x000031       data     extern MC32P7031_Demo_C.asm
-                   _flag1   0x000032       data     extern MC32P7031_Demo_C.asm
-                  r0x1027   0x000007       data     static MC32P7031_Demo_C.asm
-                  r0x1028   0x000008       data     static MC32P7031_Demo_C.asm
-                  r0x102A   0x000009       data     static MC32P7031_Demo_C.asm
-                  r0x1029   0x00000a       data     static MC32P7031_Demo_C.asm
-                  r0x1018   0x00000b       data     static MC32P7031_Demo_C.asm
-                  r0x1019   0x00000c       data     static MC32P7031_Demo_C.asm
-                  r0x101A   0x00000d       data     static MC32P7031_Demo_C.asm
-                  r0x101B   0x00000e       data     static MC32P7031_Demo_C.asm
-                  r0x101C   0x00000f       data     static MC32P7031_Demo_C.asm
-                  r0x101D   0x000010       data     static MC32P7031_Demo_C.asm
-                  r0x101E   0x000011       data     static MC32P7031_Demo_C.asm
-                  r0x101F   0x000012       data     static MC32P7031_Demo_C.asm
-                  r0x1020   0x000013       data     static MC32P7031_Demo_C.asm
-                  r0x1021   0x000014       data     static MC32P7031_Demo_C.asm
-                  r0x1022   0x000015       data     static MC32P7031_Demo_C.asm
-                  r0x1024   0x000016       data     static MC32P7031_Demo_C.asm
-                  r0x1023   0x000017       data     static MC32P7031_Demo_C.asm
-                  r0x1025   0x000018       data     static MC32P7031_Demo_C.asm
-                  r0x1026   0x000019       data     static MC32P7031_Demo_C.asm
-                  r0x1010   0x00001a       data     static MC32P7031_Demo_C.asm
-                  r0x1011   0x00001b       data     static MC32P7031_Demo_C.asm
-                  r0x1012   0x00001c       data     static MC32P7031_Demo_C.asm
-                  r0x1013   0x00001d       data     static MC32P7031_Demo_C.asm
-                  r0x1014   0x00001e       data     static MC32P7031_Demo_C.asm
-                  r0x1015   0x00001f       data     static MC32P7031_Demo_C.asm
-                  r0x1017   0x000020       data     static MC32P7031_Demo_C.asm
-                _led_step   0x000033       data     extern MC32P7031_Demo_C.asm
+            _timer0_count   0x000026       data     extern MC32P7031_Demo_C.asm
+          _key_down_count   0x00002a       data     extern MC32P7031_Demo_C.asm
+         _key_press_count   0x00002e       data     extern MC32P7031_Demo_C.asm
+           _last_adc_tick   0x000032       data     extern MC32P7031_Demo_C.asm
+   _last_switch_gear_tick   0x000036       data     extern MC32P7031_Demo_C.asm
+                    _gear   0x00003c       data     extern MC32P7031_Demo_C.asm
+               _bat_level   0x00003d       data     extern MC32P7031_Demo_C.asm
+                 _IO_buff   0x00003e       data     extern MC32P7031_Demo_C.asm
+                   _flag1   0x00003f       data     extern MC32P7031_Demo_C.asm
+                  _adctmp   0x00003a       data     extern MC32P7031_Demo_C.asm
+                  r0x101A   0x000007       data     static MC32P7031_Demo_C.asm
+                  r0x101B   0x000008       data     static MC32P7031_Demo_C.asm
+                  r0x101C   0x000009       data     static MC32P7031_Demo_C.asm
+                  r0x101D   0x00000a       data     static MC32P7031_Demo_C.asm
+                  r0x101E   0x00000b       data     static MC32P7031_Demo_C.asm
+                  r0x101F   0x00000c       data     static MC32P7031_Demo_C.asm
+                  r0x1020   0x00000d       data     static MC32P7031_Demo_C.asm
+                  r0x1021   0x00000e       data     static MC32P7031_Demo_C.asm
+                  r0x1022   0x00000f       data     static MC32P7031_Demo_C.asm
+                  r0x1023   0x000010       data     static MC32P7031_Demo_C.asm
+                  r0x1024   0x000011       data     static MC32P7031_Demo_C.asm
+                  r0x1025   0x000012       data     static MC32P7031_Demo_C.asm
+                  r0x1026   0x000013       data     static MC32P7031_Demo_C.asm
+                  r0x1027   0x000014       data     static MC32P7031_Demo_C.asm
+                  r0x1028   0x000015       data     static MC32P7031_Demo_C.asm
+                  r0x1029   0x000016       data     static MC32P7031_Demo_C.asm
+                  r0x102A   0x000017       data     static MC32P7031_Demo_C.asm
+                  r0x102B   0x000018       data     static MC32P7031_Demo_C.asm
+                  r0x102C   0x000019       data     static MC32P7031_Demo_C.asm
+                  r0x102D   0x00001a       data     static MC32P7031_Demo_C.asm
+                  r0x102E   0x00001b       data     static MC32P7031_Demo_C.asm
+                  r0x102F   0x00001c       data     static MC32P7031_Demo_C.asm
+                  r0x1030   0x00001d       data     static MC32P7031_Demo_C.asm
+                  r0x1031   0x00001e       data     static MC32P7031_Demo_C.asm
+                  r0x1032   0x00001f       data     static MC32P7031_Demo_C.asm
+                  r0x1033   0x000020       data     static MC32P7031_Demo_C.asm
          __sdcc_interrupt   0x000008    program     static MC32P7031_Demo_C.asm
                  _int_isr   0x000008    program     extern MC32P7031_Demo_C.asm
-               _00362_DS_   0x000016    program     static MC32P7031_Demo_C.asm
-               _00365_DS_   0x00001b    program     static MC32P7031_Demo_C.asm
+               _00551_DS_   0x000016    program     static MC32P7031_Demo_C.asm
+               _00554_DS_   0x00001b    program     static MC32P7031_Demo_C.asm
          END_OF_INTERRUPT   0x00001c    program     static MC32P7031_Demo_C.asm
                     _main   0x00001d    program     extern MC32P7031_Demo_C.asm
-               _00307_DS_   0x00001e    program     static MC32P7031_Demo_C.asm
-               _00295_DS_   0x000031    program     static MC32P7031_Demo_C.asm
-               _00351_DS_   0x000042    program     static MC32P7031_Demo_C.asm
-               _00352_DS_   0x000045    program     static MC32P7031_Demo_C.asm
-               _00353_DS_   0x00004c    program     static MC32P7031_Demo_C.asm
-               _00354_DS_   0x00004f    program     static MC32P7031_Demo_C.asm
-               _00355_DS_   0x000072    program     static MC32P7031_Demo_C.asm
-               _00290_DS_   0x000076    program     static MC32P7031_Demo_C.asm
-               _00356_DS_   0x00008c    program     static MC32P7031_Demo_C.asm
-               _00296_DS_   0x00008f    program     static MC32P7031_Demo_C.asm
-               _00298_DS_   0x000093    program     static MC32P7031_Demo_C.asm
-               _00300_DS_   0x00009b    program     static MC32P7031_Demo_C.asm
-               _00302_DS_   0x0000a5    program     static MC32P7031_Demo_C.asm
-          _fascia_gun_off   0x0000a9    program     extern MC32P7031_Demo_C.asm
-            _fscia_gun_on   0x0000ad    program     extern MC32P7031_Demo_C.asm
-          _led_on_by_gear   0x0000b2    program     extern MC32P7031_Demo_C.asm
-               _00246_DS_   0x0000b6    program     static MC32P7031_Demo_C.asm
-               _00271_DS_   0x0000bf    program     static MC32P7031_Demo_C.asm
-               _00243_DS_   0x0000cb    program     static MC32P7031_Demo_C.asm
-               _00249_DS_   0x0000ce    program     static MC32P7031_Demo_C.asm
-               _00272_DS_   0x0000de    program     static MC32P7031_Demo_C.asm
-               _00251_DS_   0x0000ea    program     static MC32P7031_Demo_C.asm
-                  _led_on   0x0000eb    program     extern MC32P7031_Demo_C.asm
-               _00236_DS_   0x0000fc    program     static MC32P7031_Demo_C.asm
-               _00233_DS_   0x00010a    program     static MC32P7031_Demo_C.asm
-               _00230_DS_   0x000118    program     static MC32P7031_Demo_C.asm
-               _00227_DS_   0x000126    program     static MC32P7031_Demo_C.asm
-               _00224_DS_   0x000134    program     static MC32P7031_Demo_C.asm
-               _00238_DS_   0x000141    program     static MC32P7031_Demo_C.asm
-   _ADC_Get_Value_Average   0x000142    program     extern MC32P7031_Demo_C.asm
-               _00175_DS_   0x000154    program     static MC32P7031_Demo_C.asm
-               _00164_DS_   0x000156    program     static MC32P7031_Demo_C.asm
-               _00215_DS_   0x000182    program     static MC32P7031_Demo_C.asm
-               _00170_DS_   0x000188    program     static MC32P7031_Demo_C.asm
-               _00216_DS_   0x000192    program     static MC32P7031_Demo_C.asm
-               _00172_DS_   0x000198    program     static MC32P7031_Demo_C.asm
-               _00173_DS_   0x0001aa    program     static MC32P7031_Demo_C.asm
-           _ADC_Get_Value   0x000206    program     extern MC32P7031_Demo_C.asm
-               _00159_DS_   0x000213    program     static MC32P7031_Demo_C.asm
-               _00129_DS_   0x000217    program     static MC32P7031_Demo_C.asm
-               _00133_DS_   0x000219    program     static MC32P7031_Demo_C.asm
-               _00134_DS_   0x00021b    program     static MC32P7031_Demo_C.asm
-                _Sys_Init   0x000236    program     extern MC32P7031_Demo_C.asm
-                _ADC_Init   0x00023c    program     extern MC32P7031_Demo_C.asm
-         _TIMER1_PWM_Init   0x000246    program     extern MC32P7031_Demo_C.asm
-         _TIMER0_INT_Init   0x00024c    program     extern MC32P7031_Demo_C.asm
-                 _IO_Init   0x000257    program     extern MC32P7031_Demo_C.asm
-                 _CLR_RAM   0x000266    program     extern MC32P7031_Demo_C.asm
-_code_MC32P7031_Demo_C_024E   0x00026b    program     static MC32P7031_Demo_C.asm
+               _00421_DS_   0x00001e    program     static MC32P7031_Demo_C.asm
+               _00377_DS_   0x00002a    program     static MC32P7031_Demo_C.asm
+               _00418_DS_   0x00002f    program     static MC32P7031_Demo_C.asm
+               _00379_DS_   0x000033    program     static MC32P7031_Demo_C.asm
+               _00383_DS_   0x000046    program     static MC32P7031_Demo_C.asm
+               _00529_DS_   0x000051    program     static MC32P7031_Demo_C.asm
+               _00530_DS_   0x000054    program     static MC32P7031_Demo_C.asm
+               _00531_DS_   0x00005b    program     static MC32P7031_Demo_C.asm
+               _00532_DS_   0x00005e    program     static MC32P7031_Demo_C.asm
+               _00533_DS_   0x00007d    program     static MC32P7031_Demo_C.asm
+               _00391_DS_   0x000081    program     static MC32P7031_Demo_C.asm
+               _00534_DS_   0x000092    program     static MC32P7031_Demo_C.asm
+               _00535_DS_   0x000095    program     static MC32P7031_Demo_C.asm
+               _00536_DS_   0x00009c    program     static MC32P7031_Demo_C.asm
+               _00537_DS_   0x00009f    program     static MC32P7031_Demo_C.asm
+               _00538_DS_   0x0000c2    program     static MC32P7031_Demo_C.asm
+               _00539_DS_   0x0000da    program     static MC32P7031_Demo_C.asm
+               _00392_DS_   0x0000dd    program     static MC32P7031_Demo_C.asm
+               _00394_DS_   0x0000e1    program     static MC32P7031_Demo_C.asm
+               _00396_DS_   0x0000eb    program     static MC32P7031_Demo_C.asm
+               _00398_DS_   0x000101    program     static MC32P7031_Demo_C.asm
+               _00403_DS_   0x000106    program     static MC32P7031_Demo_C.asm
+               _00406_DS_   0x00010e    program     static MC32P7031_Demo_C.asm
+               _00542_DS_   0x000145    program     static MC32P7031_Demo_C.asm
+               _00408_DS_   0x000149    program     static MC32P7031_Demo_C.asm
+               _00543_DS_   0x00017c    program     static MC32P7031_Demo_C.asm
+               _00412_DS_   0x00017f    program     static MC32P7031_Demo_C.asm
+               _00424_DS_   0x000184    program     static MC32P7031_Demo_C.asm
+               _00544_DS_   0x00018d    program     static MC32P7031_Demo_C.asm
+               _00413_DS_   0x000199    program     static MC32P7031_Demo_C.asm
+               _00427_DS_   0x0001a0    program     static MC32P7031_Demo_C.asm
+               _00545_DS_   0x0001a9    program     static MC32P7031_Demo_C.asm
+               _00414_DS_   0x0001b5    program     static MC32P7031_Demo_C.asm
+          _fascia_gun_off   0x0001bb    program     extern MC32P7031_Demo_C.asm
+           _fascia_gun_on   0x0001c6    program     extern MC32P7031_Demo_C.asm
+  _fascia_gun_is_charging   0x0001d3    program     extern MC32P7031_Demo_C.asm
+           _led_on_by_bat   0x0001db    program     extern MC32P7031_Demo_C.asm
+               _00320_DS_   0x0001e8    program     static MC32P7031_Demo_C.asm
+               _00357_DS_   0x0001f1    program     static MC32P7031_Demo_C.asm
+               _00316_DS_   0x0001fd    program     static MC32P7031_Demo_C.asm
+               _00323_DS_   0x000200    program     static MC32P7031_Demo_C.asm
+               _00358_DS_   0x00020e    program     static MC32P7031_Demo_C.asm
+               _00317_DS_   0x00021a    program     static MC32P7031_Demo_C.asm
+               _00326_DS_   0x000222    program     static MC32P7031_Demo_C.asm
+               _00359_DS_   0x00022b    program     static MC32P7031_Demo_C.asm
+               _00328_DS_   0x00023b    program     static MC32P7031_Demo_C.asm
+          _led_on_by_gear   0x00023c    program     extern MC32P7031_Demo_C.asm
+               _00285_DS_   0x000240    program     static MC32P7031_Demo_C.asm
+               _00310_DS_   0x000249    program     static MC32P7031_Demo_C.asm
+               _00282_DS_   0x000255    program     static MC32P7031_Demo_C.asm
+               _00288_DS_   0x000258    program     static MC32P7031_Demo_C.asm
+               _00311_DS_   0x000268    program     static MC32P7031_Demo_C.asm
+               _00290_DS_   0x000274    program     static MC32P7031_Demo_C.asm
+                  _led_on   0x000275    program     extern MC32P7031_Demo_C.asm
+               _00275_DS_   0x000286    program     static MC32P7031_Demo_C.asm
+               _00272_DS_   0x000294    program     static MC32P7031_Demo_C.asm
+               _00269_DS_   0x0002a2    program     static MC32P7031_Demo_C.asm
+               _00266_DS_   0x0002b0    program     static MC32P7031_Demo_C.asm
+               _00263_DS_   0x0002be    program     static MC32P7031_Demo_C.asm
+               _00277_DS_   0x0002cb    program     static MC32P7031_Demo_C.asm
+          _pwm_on_by_gear   0x0002cc    program     extern MC32P7031_Demo_C.asm
+               _00255_DS_   0x0002dd    program     static MC32P7031_Demo_C.asm
+                _delay_ms   0x0002de    program     extern MC32P7031_Demo_C.asm
+               _00239_DS_   0x0002e9    program     static MC32P7031_Demo_C.asm
+               _00248_DS_   0x000321    program     static MC32P7031_Demo_C.asm
+       _measure_bat_level   0x000324    program     extern MC32P7031_Demo_C.asm
+               _00229_DS_   0x000330    program     static MC32P7031_Demo_C.asm
+               _00201_DS_   0x000334    program     static MC32P7031_Demo_C.asm
+               _00230_DS_   0x00033e    program     static MC32P7031_Demo_C.asm
+               _00198_DS_   0x000342    program     static MC32P7031_Demo_C.asm
+               _00231_DS_   0x00034c    program     static MC32P7031_Demo_C.asm
+               _00195_DS_   0x000350    program     static MC32P7031_Demo_C.asm
+               _00232_DS_   0x00035a    program     static MC32P7031_Demo_C.asm
+               _00192_DS_   0x00035e    program     static MC32P7031_Demo_C.asm
+               _00233_DS_   0x000368    program     static MC32P7031_Demo_C.asm
+               _00189_DS_   0x00036c    program     static MC32P7031_Demo_C.asm
+               _00234_DS_   0x000376    program     static MC32P7031_Demo_C.asm
+               _00193_DS_   0x00037a    program     static MC32P7031_Demo_C.asm
+               _00203_DS_   0x00037c    program     static MC32P7031_Demo_C.asm
+   _ADC_Get_Value_Average   0x00037d    program     extern MC32P7031_Demo_C.asm
+               _00140_DS_   0x00038f    program     static MC32P7031_Demo_C.asm
+               _00129_DS_   0x000391    program     static MC32P7031_Demo_C.asm
+               _00180_DS_   0x0003bb    program     static MC32P7031_Demo_C.asm
+               _00135_DS_   0x0003c1    program     static MC32P7031_Demo_C.asm
+               _00181_DS_   0x0003cb    program     static MC32P7031_Demo_C.asm
+               _00137_DS_   0x0003d1    program     static MC32P7031_Demo_C.asm
+               _00138_DS_   0x0003e5    program     static MC32P7031_Demo_C.asm
+                _Sys_Init   0x000443    program     extern MC32P7031_Demo_C.asm
+                _ADC_Init   0x00044b    program     extern MC32P7031_Demo_C.asm
+         _TIMER0_PWM_Init   0x000454    program     extern MC32P7031_Demo_C.asm
+         _TIMER2_INT_Init   0x00045c    program     extern MC32P7031_Demo_C.asm
+                 _IO_Init   0x000467    program     extern MC32P7031_Demo_C.asm
+                 _CLR_RAM   0x000477    program     extern MC32P7031_Demo_C.asm
+_code_MC32P7031_Demo_C_045F   0x00047c    program     static MC32P7031_Demo_C.asm
               _HIBYTEbits   0x000082       data     extern mc32p7031.asm
                   _HIBYTE   0x000082       data     extern mc32p7031.asm
                 _FSR0bits   0x000083       data     extern mc32p7031.asm
@@ -259,5 +305,12 @@ _code_MC32P7031_Demo_C_024E   0x00026b    program     static MC32P7031_Demo_C.as
                    _STK1H   0x0000fd       data     extern mc32p7031.asm
                    _STK0L   0x0000fe       data     extern mc32p7031.asm
                    _STK0H   0x0000ff       data     extern mc32p7031.asm
-                   _cinit   0x00026e    program     extern  
+                  r0x1000   0x000021       data     static _mulchar.asm
+                  r0x1001   0x000022       data     static _mulchar.asm
+                  r0x1002   0x000023       data     static _mulchar.asm
+                  r0x1003   0x000024       data     static _mulchar.asm
+                  r0x1004   0x000025       data     static _mulchar.asm
+                __mulchar   0x00047f    program     extern _mulchar.asm
+               _00118_DS_   0x000485    program     static _mulchar.asm
+               _00114_DS_   0x000489    program     static _mulchar.asm
  

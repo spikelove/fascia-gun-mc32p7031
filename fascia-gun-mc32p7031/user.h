@@ -34,16 +34,22 @@ uint ADC_Get_Value_Average(uchar CHX);
 
 void led_set(u8 n, u8 onoff);
 
-u8 changl_Num;  	   	   	//存储上次通道值  判断通道值是否改变   	
-uint16_t ADC_num_value;
+//u8 changl_Num;  	   	   	//存储上次通道值  判断通道值是否改变   	
 // 定时器计数
 uint32_t timer0_count;
 // 记录按键按下的时刻
 uint32_t key_down_count;
 // 记录按键按下时长
 uint32_t key_press_count;
-// 当前挡位
+// 记录上次检测电量时刻
+uint32_t last_adc_tick;
+// 记录上次更换档位时刻
+uint32_t last_switch_gear_tick;
+
+// 当前档位
 uint8_t gear;
+// 当前电量 0-6
+uint8_t bat_level;
 
 //============Define  Flag=================
 typedef union {
@@ -75,6 +81,8 @@ volatile bit_flag flag1;
 #define  	FLAG_TIMER0_5000ms  	flag1.bits.bit0	   	 
 #define  	FLAG_KEY_SHORT  		flag1.bits.bit1	   	 
 #define  	FLAG_KEY_LONG  			flag1.bits.bit2	   	 
+#define  	FLAG_CHARGING  			flag1.bits.bit3	   	 
+#define 	FLAG_LOW_BAT			flag1.bits.bit4
 
 #endif
 
