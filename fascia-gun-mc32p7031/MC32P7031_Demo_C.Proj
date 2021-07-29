@@ -17,7 +17,7 @@
   <WatchSymbol Name="timer0_count" Addr="??" Value="Error:not found" BitFlag="False" Bit="0" DataRes="0" Array="False" />
   <WatchSymbol Name="last_switch_gear_tick" Addr="??" Value="Error:not found" BitFlag="False" Bit="0" DataRes="0" Array="False" />
   <WatchSymbol Name="bat_level" Addr="0030" Value="??" BitFlag="False" Bit="0" DataRes="1" Array="False" />
-  <WatchSymbol Name="adctmp" Addr="002D" Value="??" BitFlag="False" Bit="0" DataRes="2" Array="False" />
+  <WatchSymbol Name="bat_adc_count" Addr="0025" Value="??" BitFlag="False" Bit="0" DataRes="4" Array="False" />
   <WatchSymbol Name="delay_count" Addr="001D" Value="??" BitFlag="False" Bit="0" DataRes="4" Array="False" />
   <WatchSymbol Name="gear_count" Addr="0029" Value="??" BitFlag="False" Bit="0" DataRes="4" Array="False" />
 </Project>

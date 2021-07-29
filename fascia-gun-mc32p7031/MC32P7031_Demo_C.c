@@ -52,30 +52,15 @@ void CLR_RAM(void)
 ;  ***********************************************/
 void IO_Init(void)
 {
-   	// P0 - p00:key, p01:led3, p02:led1, p03:-
-   	// P00 	key
-   	// P01 	无
-   	// P02 	led1
-   	// P03 	无
    	IOP0 = 0x00; //io口数据位
-   	OEP0 = 0xfD; //io口方向 1:out  0:in
+   	OEP0 = 0xfc; //io口方向 1:out  0:in
    	PUP0 = 0x02; //io口上拉电阻   1:enable  0:disable
 
-   	// P4
-   	// P40 led6
-   	// P41 led5
-   	// P42 led4
-   	// P43 adc 充电
-   	// P44 adc 电池电压
    	IOP4 = 0x00; //io口数据位
-   	OEP4 = 0xe7;  //io口方向
+   	OEP4 = 0xef;  //io口方向
    	PUP4 = 0x00;  //io口上拉电阻   1:enable  0:disable
    	ANSEL = 0x10; //io类型选择  1:模拟输入  0:通用io
 
-   	// P5
-   	// P52 无
-   	// P53 led3
-   	// P54 PWM
    	IOP5 = 0x00; //io口数据位
    	OEP5 = 0xff; //io口方向 1:out  0:in
    	PUP5 = 0x00; //io口上拉电阻   1:enable  0:disable
@@ -104,7 +89,7 @@ void TIMER2_INT_Init(void)
 ;  ***********************************************/
 void TIMER0_PWM_Init(void)
 {
-	//T0时钟 T0 T2 Fcpu  T1 Fhosc 开启T0唤醒
+   	//T0时钟 T0 T2 Fcpu  T1 Fhosc 开启T0唤醒
    	TXCR = 0x0a;
 
    	// 开启TIMER0, 使能PWM0
@@ -114,17 +99,6 @@ void TIMER0_PWM_Init(void)
 
    	PWM0OE=0;
    	TC0EN=0;
-}
-
-void TIMER0_WAKEUP_Init(void)
-{
-   	T0CR=0x24; 	   	   	   	//内部 64分频  允许自动重载
-   	T0C=256-125;
-   	T0D=256-125;   	   	//1ms
-   	T0IF=0; 	
-
-	TC0EN=1;
-   	T0IE=1;
 }
 
 /************************************************
@@ -198,42 +172,6 @@ uint ADC_Get_Value_Average(uchar CHX)
    	return adctmp;
 }
 
-// adc = v * 210
-// 0 < 6.5v		1365
-// 1 > 6.5v   	1365
-// 2 > 6.8v   	1428
-// 3 > 7.2v 	1512
-// 4 > 7.6v   	1596
-// 5 > 8v 	   	1680
-// 6 > 8.2v   	1722   	   	   	 
-void measure_bat_level(void)
-{
-   	ADC_Get_Value_Average(4);
-
-   	if (adctmp > 1722) {
-		bat_level = 6;
-   	} else if (adctmp > 1680) {
-		bat_level = 5;
-   	} else if (adctmp > 1596) {
-		bat_level = 4;
-   	} else if (adctmp > 1512) {
-		bat_level = 3;
-   	} else if (adctmp > 1428) {
-		bat_level = 2;
-   	} else if (adctmp > 1365) {
-		bat_level = 1;
-   	} else {
-   		FLAG_LOW_BAT = 1;
-		bat_level = 0;
-	}
-}
-
-void delay_ms(u16 ms)
-{
-	delay_count = 0;
-	while(delay_count < ms);
-}
-
 // 控制pwm0输出
 void pwm_on_by_gear(u8 gear)
 {
@@ -245,6 +183,47 @@ void pwm_on_by_gear(u8 gear)
    	   	PWM0OE=1;
    	   	TC0EN=1;
    	}
+}
+
+// adc = v * 210
+// 0 < 6.5v	   	1365
+// 1 > 6.5v    	1365
+// 2 > 6.8v    	1428
+// 3 > 7.2v    	1512
+// 4 > 7.6v    	1596
+// 5 > 8v  	   	1680
+// 6 > 8.2v    	1722   	   	   	 
+void measure_bat_level(void)
+{
+   	ADC_Get_Value_Average(4);
+
+   	FLAG_LOW_BAT = 0;
+
+   	if (adctmp > 1722) {
+   	   	bat_level = 6;
+   	} else if (adctmp > 1680) {
+   	   	bat_level = 5;
+   	} else if (adctmp > 1596) {
+   	   	bat_level = 4;
+   	} else if (adctmp > 1512) {
+   	   	bat_level = 3;
+   	} else if (adctmp > 1428) {
+   	   	bat_level = 2;
+   	} else if (adctmp > 1365) {
+   	   	bat_level = 1;
+   	} else {
+   	   	FLAG_LOW_BAT = 1;
+   	   	bat_level = 0;
+		
+		// 关闭pwm输出
+		pwm_on_by_gear(0);
+   	}
+}
+
+void delay_ms(u16 ms)
+{
+   	delay_count = 0;
+   	while(delay_count < ms);
 }
 
 // 控制指定LED灯开关，1 - 6
@@ -259,9 +238,9 @@ void led_on(u8 n, u8 onoff)
    	   	IO_BIT3 = onoff;
    	   	IOP5 = IO_buff.byte;
     } else if (n == 3) {
-   	   	IO_buff.byte = IOP0;
-   	   	IO_BIT0 = onoff;
-   	   	IOP0 = IO_buff.byte;
+   	   	IO_buff.byte = IOP4;
+   	   	IO_BIT3 = onoff;
+   	   	IOP4 = IO_buff.byte;
     } else if (n == 4) {
    	   	IO_buff.byte = IOP4;
    	   	IO_BIT2 = onoff;
@@ -275,6 +254,13 @@ void led_on(u8 n, u8 onoff)
    	   	IO_BIT0 = onoff;
    	   	IOP4 = IO_buff.byte;
     }
+}
+
+// 是否正在充电
+u8 fascia_gun_is_charging(void)
+{
+   	IO_buff.byte = IOP0;
+   	return IO_BIT0;
 }
 
 // 控制指定个数LED灯亮 0 - 6
@@ -306,27 +292,25 @@ void led_on_by_bat(u8 n)
    	for (int i=1; i<=n; i++) {
    	   	led_on(i, 1);
    	}
-
+	
    	delay_ms(1000);
 
    	for (int i=(n+1); i<7; i++) {
+   		IO_buff.byte = IOP0;
+   		if (IO_BIT0 == 0) {
+			   break;
+		}
+
    	   	led_on(i, 1);
    	   	delay_ms(1000);
    	}
 }
 
-// 是否正在充电
-u8 fascia_gun_is_charging(void)
-{
-   	IO_buff.byte = IOP4;
-   	return IO_BIT3;
-}
-
 // 开机
 void fascia_gun_on(void)
 {
-	gear = 0;
-	gear_count = 0;
+   	gear = 0;
+   	gear_count = 0;
 }
 
 // 关机
@@ -341,36 +325,6 @@ void fascia_gun_off(void)
    	pwm_on_by_gear(0);
 }
 
-void enter_sleep(void)
-{
-	ADON=0;	   	   	 //关闭外设    	
-	CLKS=1;	   	//切换到低频
-	Nop();
-	HOFF=1;	   	//关闭高频
-
-	TIMER0_WAKEUP_Init();
-	INTF=0;
-
-	Nop();
-	Nop();
-	OSCM&=0xE7;   
-	OSCM|= 0x10;	  			  	//绿色模式
-	Nop();
-	Nop();
-	Nop();
-}
-
-void exit_sleep(void)
-{
-	TIMER0_PWM_Init();			  
-	HOFF=0;	   	//打开高频  (用户自己选择)
-	Nop();
-	Nop();
-	CLKS=0;	   	//切换到高频	   	(用户自己选择)
-
-	ADON=1;	   	//开启相应的外设  (用户自己选择)
-}
-
 void main(void)
 {
    	Sys_Init();
@@ -379,23 +333,23 @@ void main(void)
    	{  	   	   
    	   	// 充电状态, 检测电池电量, 根据电量显示跑马灯
    	   	if(fascia_gun_is_charging()) {
-			// 进入充电状态, 检测一次电压
-			if (FLAG_CHARGING == 0) {
-   	   	   		FLAG_CHARGING = 1;
-				measure_bat_level();
-				bat_adc_count = 0;
-			}
+   	   	   	// 进入充电状态, 检测一次电压
+   	   	   	if (FLAG_CHARGING == 0) {
+   	   	   	   	FLAG_CHARGING = 1;
+   	   	   	   	measure_bat_level();
+   	   	   	   	bat_adc_count = 0;
+   	   	   	}
 
    	   	   	// 如果充电时已开机, 将筋膜枪关机
    	   	   	if (gear > 0) {
    	   	   	   	fascia_gun_off();
    	   	   	}
-			
-			// 充电时每隔10分钟检测一次电池电压
-			if (bat_adc_count > 10 * 60 * 1000ul) {
-				measure_bat_level();
-				bat_adc_count = 0;
-			}
+   	   	   	
+   	   	   	// 充电时每隔10分钟检测一次电池电压
+   	   	   	if (bat_adc_count > 10 * 60 * 1000ul) {
+   	   	   	   	measure_bat_level();
+   	   	   	   	bat_adc_count = 0;
+   	   	   	}
 
    	   	   	// 根据电池电量显示LED
    	   	   	led_on_by_bat(bat_level);
@@ -417,8 +371,8 @@ void main(void)
    	   	   	   	   	} else {
    	   	   	   	   	   	if (key_press_count > 2000) {
    	   	   	   	   	   	   	FLAG_KEY_LONG = 1;
-							FLAG_KEY_LONG_DONE = 1;
-							key_press_count = 0;
+   	   	   	   	   	   	   	FLAG_KEY_LONG_DONE = 1;
+   	   	   	   	   	   	   	key_press_count = 0;
    	   	   	   	   	   	}
    	   	   	   	   	}
    	   	   	   	} else {
@@ -427,7 +381,7 @@ void main(void)
    	   	   	   	   	}
 
    	   	   	   	   	key_press_count = 0;
-					FLAG_KEY_LONG_DONE = 0;
+   	   	   	   	   	FLAG_KEY_LONG_DONE = 0;
    	   	   	   	}
    	   	   	}
 
@@ -449,7 +403,7 @@ void main(void)
    	   	   	   	}
 
    	   	   	   	gear++;
-				gear_count = 0;
+   	   	   	   	gear_count = 0;
 
    	   	   	   	// 电池没有低电量，调节档位
    	   	   	   	if (bat_level > 0) {
@@ -473,10 +427,10 @@ void main(void)
 
    	   	   	// 处于开机状态的持续性检测工作  	
    	   	   	if (gear > 0) {
-				// 工作时每隔1分钟检测一次电量
-   	   	   	   	if (bat_adc_count > 60 * 1000ul) {
+   	   	   	   	// 工作时每隔1分钟检测一次电量
+   	   	   	   	if (bat_adc_count > 10 * 1000ul) {
    	   	   	   	   	measure_bat_level();
-					bat_adc_count = 0;
+   	   	   	   	   	bat_adc_count = 0;
    	   	   	   	}
 
    	   	   	   	// 一个档位持续超过15分钟关机
@@ -484,26 +438,37 @@ void main(void)
    	   	   	   	   	fascia_gun_off();
    	   	   	   	}
 
-   	   	   		// 低电量状态6个灯一起闪, 直到关机操作出现
-   	   	   		if (FLAG_LOW_BAT) {
-   	   	   		   	for (int i=1; i<7; i++) {
-   	   	   		   	   	led_on(i, 1);
-   	   	   		   	}
-   	   	   		   	delay_ms(1000);
-   	   	   		   	for (int i=1; i<7; i++) {
-   	   	   		   	   	led_on(i, 0);
-   	   	   		   	}
-   	   	   		   	delay_ms(1000);
-   	   	   		}
+   	   	   	   	// 低电量状态6个灯一起闪, 直到关机操作出现
+   	   	   	   	if (FLAG_LOW_BAT) {
+   	   	   	   	   	for (int i=1; i<7; i++) {
+   	   	   	   	   	   	led_on(i, 1);
+   	   	   	   	   	}
+   	   	   	   	   	delay_ms(1000);
+   	   	   	   	   	for (int i=1; i<7; i++) {
+   	   	   	   	   	   	led_on(i, 0);
+   	   	   	   	   	}
+   	   	   	   	   	delay_ms(1000);
+   	   	   	   	}
    	   	   	}
-			// 关机状态又没有充电, 系统进入绿色模式, 定时器或者p0唤醒
-			else {
-   				IO_buff.byte = IOP0;
+   	   	   	// 关机状态又没有充电, 系统进入绿色模式, 定时器或者p0唤醒
+   	   	   	else {
+   	   	   	   	IO_buff.byte = IOP0;
    	   	   	   	if (IO_BIT1) {
-					enter_sleep();
-					exit_sleep();
-				}
-			}
+					GIE = 0;
+   	   	   			ADON = 0;
+
+   	   	   			Nop();
+   	   	   			Nop();
+   	   	   			OSCM &= 0xE7;
+   	   	   			OSCM |= 0x08;
+   	   	   			Nop();
+   	   	   			Nop();
+   	   	   			Nop(); 	   	   	
+
+   	   	   			GIE = 1;
+   	   	   			ADON = 1;  	   	//唤醒后开启外设
+   	   	   	   	}
+   	   	   	}
    	   	}
    	}
 }
@@ -514,20 +479,21 @@ void int_isr(void) __interrupt
    	push
    	__endasm;
    	//=======T0========================
-	if(T0IF&&T0IE)
+   	if(T0IF&&T0IE)
    	{
    	   	T0IF=0;
-	}
+   	}
    	
    	//=======T2========================
    	if (T2IF && T2IE)
    	{
    	   	T2IF = 0;
-		gear_count++;
-		delay_count++;
-		if (key_press_count > 0) {
-			key_press_count++;
-		}
+   	   	gear_count++;
+   	   	delay_count++;
+		bat_adc_count++;
+   	   	if (key_press_count > 0) {
+   	   	   	key_press_count++;
+   	   	}
    	}
 
    	//=======ADC=======================
