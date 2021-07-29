@@ -89,8 +89,6 @@ void IO_Init(void)
 ;  ***********************************************/
 void TIMER2_INT_Init(void)
 {
-   	TXCR = 0x08; //T0时钟 T0 T2 Fcpu  T1 Fhosc 禁止T0唤醒
-
    	T2CR = 0xD4; //内部 8分频  允许自动重载
    	T2C = 256 - 125;
    	T2D = 256 - 125; //1ms
@@ -106,13 +104,27 @@ void TIMER2_INT_Init(void)
 ;  ***********************************************/
 void TIMER0_PWM_Init(void)
 {
-   	// 开启TIMER2, 使能PWM2
-   	T0CR = 0xF1;
+	//T0时钟 T0 T2 Fcpu  T1 Fhosc 开启T0唤醒
+   	TXCR = 0x0a;
+
+   	// 开启TIMER0, 使能PWM0
+   	T0CR = 0xE0;
    	T0C = 0;
    	T0D = 200;
 
    	PWM0OE=0;
    	TC0EN=0;
+}
+
+void TIMER0_WAKEUP_Init(void)
+{
+   	T0CR=0x24; 	   	   	   	//内部 64分频  允许自动重载
+   	T0C=256-125;
+   	T0D=256-125;   	   	//1ms
+   	T0IF=0; 	
+
+	TC0EN=1;
+   	T0IE=1;
 }
 
 /************************************************
@@ -147,38 +159,6 @@ void Sys_Init(void)
    	ADC_Init();
    	GIE = 1;
 }
-
-/************************************************
-;  *    @Function Name       : ADC_Get_Value
-;  *    @Description         : ADC单次转换
-;  *    @IN_Parameter      	 : CHX  ADC通道
-;  *    @Return parameter    : 该通道ADC的值
-;  ***********************************************/
-//uint ADC_Get_Value(uchar CHX)
-//{
-//     	u16 ADC_temp_value;
-//
-//     	ADCR = (ADCR & 0xf8) | CHX; // ADC 使能  AD转换通道开启  通道  CHX
-//
-//     	if (changl_Num != CHX) //通道切换了  舍去
-//     	{
-//     	   	changl_Num = CHX;
-//     	   	ADEOC = 0;
-//     	   	ADST = 1; // 开始转换
-//     	   	while (ADEOC == 0)
-//     	   	{ // 检查EOC的标志位   等待转换完毕
-//     	   	}
-//     	}
-//     	ADEOC = 0;
-//     	ADST = 1; // 开始转换
-//     	while (ADEOC == 0)
-//     	{ // 检查EOC的标志位   等待转换完毕
-//     	}
-//     	ADC_temp_value = ADRH;
-//     	ADC_temp_value = ADC_temp_value << 4 | (ADRL & 0x0f);
-//
-//     	return ADC_temp_value; // 获得ADC转换的数据
-//}
 
 u16 adctmp;
 /************************************************
@@ -219,40 +199,39 @@ uint ADC_Get_Value_Average(uchar CHX)
 }
 
 // adc = v * 210
-// 0 0% 		6v 		1260
-// 1 15%		6.2v	1302
-// 2 30%		6.6v	1386
-// 3 45%		7v		1470
-// 4 60%		7.4v	1554
-// 5 75%		8v		1680
-// 6 100% 		8.2v	1722			 
-
-u8 measure_bat_level(void)
+// 0 < 6.5v		1365
+// 1 > 6.5v   	1365
+// 2 > 6.8v   	1428
+// 3 > 7.2v 	1512
+// 4 > 7.6v   	1596
+// 5 > 8v 	   	1680
+// 6 > 8.2v   	1722   	   	   	 
+void measure_bat_level(void)
 {
    	ADC_Get_Value_Average(4);
 
-	if (adctmp > 1722) {
-		return 6;
-	} else if (adctmp > 1680) {
-		return 5;
-	} else if (adctmp > 1554) {
-		return 4;
-	} else if (adctmp > 1470) {
-		return 3;
-	} else if (adctmp > 1386) {
-		return 2;
-	} else if (adctmp > 1320) {
-		return 1;
+   	if (adctmp > 1722) {
+		bat_level = 6;
+   	} else if (adctmp > 1680) {
+		bat_level = 5;
+   	} else if (adctmp > 1596) {
+		bat_level = 4;
+   	} else if (adctmp > 1512) {
+		bat_level = 3;
+   	} else if (adctmp > 1428) {
+		bat_level = 2;
+   	} else if (adctmp > 1365) {
+		bat_level = 1;
+   	} else {
+   		FLAG_LOW_BAT = 1;
+		bat_level = 0;
 	}
-
-	FLAG_LOW_BAT = 1;
-   	return 0;
 }
 
 void delay_ms(u16 ms)
 {
-   	uint32_t start = timer0_count;
-   	while(timer0_count - start < ms);
+	delay_count = 0;
+	while(delay_count < ms);
 }
 
 // 控制pwm0输出
@@ -262,9 +241,9 @@ void pwm_on_by_gear(u8 gear)
    	TC0EN=0;
 
    	if (gear > 0) {
-   		T0D = 190 + gear * 10;
-   		PWM0OE=1;
-   		TC0EN=1;
+   	   	T0D = 190 + gear * 10;
+   	   	PWM0OE=1;
+   	   	TC0EN=1;
    	}
 }
 
@@ -346,42 +325,77 @@ u8 fascia_gun_is_charging(void)
 // 开机
 void fascia_gun_on(void)
 {
-   	// 定时器清0
-   	timer0_count = 0;
-	last_switch_gear_tick = 0;
-	last_adc_tick = 0;
+	gear = 0;
+	gear_count = 0;
 }
 
 // 关机
 void fascia_gun_off(void)
 {
-	FLAG_LOW_BAT = 0;
-	// 定时器清零
-   	timer0_count = 0;
+   	FLAG_LOW_BAT = 0;
    	// 档位清零
    	gear = 0;
    	// led全关
    	led_on_by_gear(0);
    	// 电机关闭
-	pwm_on_by_gear(0);
+   	pwm_on_by_gear(0);
+}
+
+void enter_sleep(void)
+{
+	ADON=0;	   	   	 //关闭外设    	
+	CLKS=1;	   	//切换到低频
+	Nop();
+	HOFF=1;	   	//关闭高频
+
+	TIMER0_WAKEUP_Init();
+	INTF=0;
+
+	Nop();
+	Nop();
+	OSCM&=0xE7;   
+	OSCM|= 0x10;	  			  	//绿色模式
+	Nop();
+	Nop();
+	Nop();
+}
+
+void exit_sleep(void)
+{
+	TIMER0_PWM_Init();			  
+	HOFF=0;	   	//打开高频  (用户自己选择)
+	Nop();
+	Nop();
+	CLKS=0;	   	//切换到高频	   	(用户自己选择)
+
+	ADON=1;	   	//开启相应的外设  (用户自己选择)
 }
 
 void main(void)
 {
    	Sys_Init();
+
    	while (1)
    	{  	   	   
    	   	// 充电状态, 检测电池电量, 根据电量显示跑马灯
    	   	if(fascia_gun_is_charging()) {
-   	   	   	FLAG_CHARGING = 1;
+			// 进入充电状态, 检测一次电压
+			if (FLAG_CHARGING == 0) {
+   	   	   		FLAG_CHARGING = 1;
+				measure_bat_level();
+				bat_adc_count = 0;
+			}
 
    	   	   	// 如果充电时已开机, 将筋膜枪关机
    	   	   	if (gear > 0) {
    	   	   	   	fascia_gun_off();
    	   	   	}
-
-			// 检测电量等级
-			bat_level = measure_bat_level();
+			
+			// 充电时每隔10分钟检测一次电池电压
+			if (bat_adc_count > 10 * 60 * 1000ul) {
+				measure_bat_level();
+				bat_adc_count = 0;
+			}
 
    	   	   	// 根据电池电量显示LED
    	   	   	led_on_by_bat(bat_level);
@@ -398,24 +412,22 @@ void main(void)
    	   	   	{
    	   	   	   	IO_buff.byte = IOP0;
    	   	   	   	if (IO_BIT1 == 0) {
-   	   	   	   	   	if (key_down_count == 0) {
-   	   	   	   	   	   	key_down_count = timer0_count;
+   	   	   	   	   	if (key_press_count == 0) {
+   	   	   	   	   	   	key_press_count = 1;
    	   	   	   	   	} else {
-   	   	   	   	   	   	key_press_count = timer0_count - key_down_count;
-
    	   	   	   	   	   	if (key_press_count > 2000) {
    	   	   	   	   	   	   	FLAG_KEY_LONG = 1;
+							FLAG_KEY_LONG_DONE = 1;
+							key_press_count = 0;
    	   	   	   	   	   	}
    	   	   	   	   	}
    	   	   	   	} else {
-   	   	   	   	   	if (key_down_count > 0) {
-   	   	   	   	   	   	key_press_count = timer0_count - key_down_count;
-   	   	   	   	   	   	key_down_count = 0;	
-
-   	   	   	   	   	   	if (key_press_count > 100 && key_press_count < 2000) {
-   	   	   	   	   	   	   	FLAG_KEY_SHORT = 1;
-   	   	   	   	   	   	}
+   	   	   	   	   	if (key_press_count > 100 && FLAG_KEY_LONG_DONE == 0) {
+   	   	   	   	   	   	FLAG_KEY_SHORT = 1;
    	   	   	   	   	}
+
+   	   	   	   	   	key_press_count = 0;
+					FLAG_KEY_LONG_DONE = 0;
    	   	   	   	}
    	   	   	}
 
@@ -433,55 +445,64 @@ void main(void)
    	   	   	   	// 开机
    	   	   	   	if (gear == 0) {
    	   	   	   	   	fascia_gun_on();
-					bat_level = measure_bat_level();
+   	   	   	   	   	measure_bat_level();
    	   	   	   	}
 
    	   	   	   	gear++;
-				last_switch_gear_tick = timer0_count;
+				gear_count = 0;
 
-				// 电池没有低电量，调节档位
-				if (bat_level > 0) {
-   	   	   	   		// 大于6档关机
-   	   	   	   		if (gear > 6) {
-   	   	   	   		   	fascia_gun_off();
+   	   	   	   	// 电池没有低电量，调节档位
+   	   	   	   	if (bat_level > 0) {
+   	   	   	   	   	// 大于6档关机
+   	   	   	   	   	if (gear > 6) {
+   	   	   	   	   	   	fascia_gun_off();
    	   	   	   	
-   	   	   	   		// 调节档位
-   	   	   	   		} else {
-   	   	   	   		   	// 	根据档位显示LED
-   	   	   	   		   	led_on_by_gear(gear);
-   	   	   	   		   	// 	根据档位调节电机
-   	   	   	   		   	pwm_on_by_gear(gear);
-   	   	   	   		}
-				} else {
-					if (gear > 6) {
-						gear = 6;
-					}
-				}
+   	   	   	   	   	// 调节档位
+   	   	   	   	   	} else {
+   	   	   	   	   	   	// 	根据档位显示LED
+   	   	   	   	   	   	led_on_by_gear(gear);
+   	   	   	   	   	   	// 	根据档位调节电机
+   	   	   	   	   	   	pwm_on_by_gear(gear);
+   	   	   	   	   	}
+   	   	   	   	} else {
+   	   	   	   	   	if (gear > 6) {
+   	   	   	   	   	   	gear = 6;
+   	   	   	   	   	}
+   	   	   	   	}
    	   	   	}
 
-			// 处于开机状态的持续性检测工作	
-			if (gear > 0) {
-				// 工作时每隔10秒检测一次电量
-				if (timer0_count - last_adc_tick > 10 * 1000ul) {
-					bat_level = measure_bat_level();
-				}
+   	   	   	// 处于开机状态的持续性检测工作  	
+   	   	   	if (gear > 0) {
+				// 工作时每隔1分钟检测一次电量
+   	   	   	   	if (bat_adc_count > 60 * 1000ul) {
+   	   	   	   	   	measure_bat_level();
+					bat_adc_count = 0;
+   	   	   	   	}
 
-				// 一个档位持续超过15分钟关机
-				if (timer0_count - last_switch_gear_tick > 15 * 60 * 1000ul) {
-					fascia_gun_off();
-				}
-			}
+   	   	   	   	// 一个档位持续超过15分钟关机
+   	   	   	   	if (gear_count > 15 * 60 * 1000ul) {
+   	   	   	   	   	fascia_gun_off();
+   	   	   	   	}
 
-			// 低电量状态6个灯一起闪, 直到关机操作出现
-			if (FLAG_LOW_BAT) {
-				for (int i=1; i<7; i++) {
-					led_on(i, 1);
+   	   	   		// 低电量状态6个灯一起闪, 直到关机操作出现
+   	   	   		if (FLAG_LOW_BAT) {
+   	   	   		   	for (int i=1; i<7; i++) {
+   	   	   		   	   	led_on(i, 1);
+   	   	   		   	}
+   	   	   		   	delay_ms(1000);
+   	   	   		   	for (int i=1; i<7; i++) {
+   	   	   		   	   	led_on(i, 0);
+   	   	   		   	}
+   	   	   		   	delay_ms(1000);
+   	   	   		}
+   	   	   	}
+			// 关机状态又没有充电, 系统进入绿色模式, 定时器或者p0唤醒
+			else {
+   				IO_buff.byte = IOP0;
+   	   	   	   	if (IO_BIT1) {
+					enter_sleep();
+					exit_sleep();
 				}
-				delay_ms(1000);
-				for (int i=1; i<7; i++) {
-					led_on(i, 0);
-				}
-				delay_ms(1000);
 			}
    	   	}
    	}
@@ -492,11 +513,21 @@ void int_isr(void) __interrupt
    	__asm 
    	push
    	__endasm;
+   	//=======T0========================
+	if(T0IF&&T0IE)
+   	{
+   	   	T0IF=0;
+	}
+   	
    	//=======T2========================
    	if (T2IF && T2IE)
    	{
    	   	T2IF = 0;
-   	   	timer0_count++;
+		gear_count++;
+		delay_count++;
+		if (key_press_count > 0) {
+			key_press_count++;
+		}
    	}
 
    	//=======ADC=======================
@@ -509,4 +540,3 @@ void int_isr(void) __interrupt
    	pop
    	__endasm;
 }
-
