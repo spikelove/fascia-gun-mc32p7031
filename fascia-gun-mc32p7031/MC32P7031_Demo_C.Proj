@@ -14,7 +14,7 @@
   <Option Value="4" Value0="4" Value1="c030" Value2="" Value3="b2" Value4="80" Value5="" Value6="" Value7="" Value8="" Value9="" Value10="" Value11="" Value12="" Value13="" />
   <Compiler Name="gpasm.exe" />
   <Language Name="C" />
-  <WatchSymbol Name="timer0_count" Addr="??" Value="Error:not found" BitFlag="False" Bit="0" DataRes="0" Array="False" />
+  <WatchSymbol Name="gear" Addr="002F" Value="??" BitFlag="False" Bit="0" DataRes="1" Array="False" />
   <WatchSymbol Name="last_switch_gear_tick" Addr="??" Value="Error:not found" BitFlag="False" Bit="0" DataRes="0" Array="False" />
   <WatchSymbol Name="bat_level" Addr="0030" Value="??" BitFlag="False" Bit="0" DataRes="1" Array="False" />
   <WatchSymbol Name="bat_adc_count" Addr="0025" Value="??" BitFlag="False" Bit="0" DataRes="4" Array="False" />

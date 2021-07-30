@@ -62,7 +62,7 @@ void IO_Init(void)
    	ANSEL = 0x10; //io类型选择  1:模拟输入  0:通用io
 
    	IOP5 = 0x00; //io口数据位
-   	OEP5 = 0xff; //io口方向 1:out  0:in
+   	OEP5 = 0xfb; //io口方向 1:out  0:in
    	PUP5 = 0x00; //io口上拉电阻   1:enable  0:disable
 }
 
@@ -186,13 +186,12 @@ void pwm_on_by_gear(u8 gear)
 }
 
 // adc = v * 210
-// 0 < 6.5v	   	1365
-// 1 > 6.5v    	1365
-// 2 > 6.8v    	1428
-// 3 > 7.2v    	1512
-// 4 > 7.6v    	1596
-// 5 > 8v  	   	1680
-// 6 > 8.2v    	1722   	   	   	 
+// 0 < 6.8v    	
+// 1 > 6.8v    	1428
+// 2 > 7.5v    	1575
+// 3 > 7.8v    	1638
+// 4 > 8v  	   	1680
+// 5 > 8.2v    	1722   	   	   	 
 void measure_bat_level(void)
 {
    	ADC_Get_Value_Average(4);
@@ -200,16 +199,14 @@ void measure_bat_level(void)
    	FLAG_LOW_BAT = 0;
 
    	if (adctmp > 1722) {
-   	   	bat_level = 6;
-   	} else if (adctmp > 1680) {
    	   	bat_level = 5;
-   	} else if (adctmp > 1596) {
+   	} else if (adctmp > 1680) {
    	   	bat_level = 4;
-   	} else if (adctmp > 1512) {
+   	} else if (adctmp > 1638) {
    	   	bat_level = 3;
-   	} else if (adctmp > 1428) {
+   	} else if (adctmp > 1575) {
    	   	bat_level = 2;
-   	} else if (adctmp > 1365) {
+   	} else if (adctmp > 1428) {
    	   	bat_level = 1;
    	} else {
    	   	FLAG_LOW_BAT = 1;
@@ -306,19 +303,31 @@ void led_on_by_bat(u8 n)
    	}
 }
 
-// 开机
-void fascia_gun_on(void)
+void system_sleep(void)
 {
-   	gear = 0;
-   	gear_count = 0;
+	GIE = 0;
+	ADON = 0;
+
+	Nop();
+	Nop();
+	OSCM &= 0xE7;
+	OSCM |= 0x08;
+	Nop();
+	Nop();
+	Nop(); 	   	   	
+
+	GIE = 1;
+	ADON = 1;
+
+	FLAG_KEY_SHORT = 1;
+	gear_count = 201;
 }
 
 // 关机
 void fascia_gun_off(void)
 {
-   	FLAG_LOW_BAT = 0;
-   	// 档位清零
    	gear = 0;
+   	FLAG_LOW_BAT = 0;
    	// led全关
    	led_on_by_gear(0);
    	// 电机关闭
@@ -329,6 +338,8 @@ void main(void)
 {
    	Sys_Init();
 
+ 	fascia_gun_off();
+
    	while (1)
    	{  	   	   
    	   	// 充电状态, 检测电池电量, 根据电量显示跑马灯
@@ -336,20 +347,27 @@ void main(void)
    	   	   	// 进入充电状态, 检测一次电压
    	   	   	if (FLAG_CHARGING == 0) {
    	   	   	   	FLAG_CHARGING = 1;
+				FLAG_KEY_SHORT = 0;
    	   	   	   	measure_bat_level();
    	   	   	   	bat_adc_count = 0;
    	   	   	}
 
-   	   	   	// 如果充电时已开机, 将筋膜枪关机
+   	   	   	// 如果充电时已开机, 关闭led和pwm
    	   	   	if (gear > 0) {
-   	   	   	   	fascia_gun_off();
+				fascia_gun_off();
    	   	   	}
-   	   	   	
-   	   	   	// 充电时每隔10分钟检测一次电池电压
-   	   	   	if (bat_adc_count > 10 * 60 * 1000ul) {
-   	   	   	   	measure_bat_level();
+			
+			// 判断是否充满, 没有充满10分钟检测一次电量
+   			IO_buff.byte = IOP5;
+   			if (IO_BIT2 == 0) {
    	   	   	   	bat_adc_count = 0;
-   	   	   	}
+				bat_level = 6;
+			} else {
+   	   	   		if (bat_adc_count > 10 * 60 * 1000ul) {
+   	   	   	   		measure_bat_level();
+   	   	   	   		bat_adc_count = 0;
+				}
+			}
 
    	   	   	// 根据电池电量显示LED
    	   	   	led_on_by_bat(bat_level);
@@ -396,34 +414,33 @@ void main(void)
    	   	   	if (FLAG_KEY_SHORT) {
    	   	   	   	FLAG_KEY_SHORT = 0;
 
-   	   	   	   	// 开机
-   	   	   	   	if (gear == 0) {
-   	   	   	   	   	fascia_gun_on();
-   	   	   	   	   	measure_bat_level();
-   	   	   	   	}
+				if (gear_count > 200) {						
+					if (gear == 0) {
+						measure_bat_level();
+					}
 
-   	   	   	   	gear++;
-   	   	   	   	gear_count = 0;
+   	   	   	   		gear++;
+   	   	   	   		gear_count = 0;
 
-   	   	   	   	// 电池没有低电量，调节档位
-   	   	   	   	if (bat_level > 0) {
-   	   	   	   	   	// 大于6档关机
-   	   	   	   	   	if (gear > 6) {
-   	   	   	   	   	   	fascia_gun_off();
-   	   	   	   	
-   	   	   	   	   	// 调节档位
-   	   	   	   	   	} else {
-   	   	   	   	   	   	// 	根据档位显示LED
-   	   	   	   	   	   	led_on_by_gear(gear);
-   	   	   	   	   	   	// 	根据档位调节电机
-   	   	   	   	   	   	pwm_on_by_gear(gear);
-   	   	   	   	   	}
-   	   	   	   	} else {
-   	   	   	   	   	if (gear > 6) {
-   	   	   	   	   	   	gear = 6;
-   	   	   	   	   	}
-   	   	   	   	}
-   	   	   	}
+   	   	   	   		// 电池没有低电量，调节档位
+   	   	   	   		if (bat_level > 0) {
+   	   	   	   		   	// 大于6档关机
+   	   	   	   		   	if (gear > 6) {
+   	   	   	   		   	   	fascia_gun_off();
+   	   	   	   		   	// 调节档位
+   	   	   	   		   	} else {
+   	   	   	   		   	   	// 	根据档位显示LED
+   	   	   	   		   	   	led_on_by_gear(gear);
+   	   	   	   		   	   	// 	根据档位调节电机
+   	   	   	   		   	   	pwm_on_by_gear(gear);
+   	   	   	   		   	}
+   	   	   	   		} else {
+   	   	   	   		   	if (gear > 6) {
+   	   	   	   		   	   	gear = 6;
+   	   	   	   		   	}
+   	   	   	   		}
+   	   	   		}
+			}
 
    	   	   	// 处于开机状态的持续性检测工作  	
    	   	   	if (gear > 0) {
@@ -449,26 +466,14 @@ void main(void)
    	   	   	   	   	}
    	   	   	   	   	delay_ms(1000);
    	   	   	   	}
-   	   	   	}
-   	   	   	// 关机状态又没有充电, 系统进入绿色模式, 定时器或者p0唤醒
-   	   	   	else {
+   	   	   	} else {
+				// 按键没有按下, 且没有档位, 进入休眠
    	   	   	   	IO_buff.byte = IOP0;
    	   	   	   	if (IO_BIT1) {
-					GIE = 0;
-   	   	   			ADON = 0;
-
-   	   	   			Nop();
-   	   	   			Nop();
-   	   	   			OSCM &= 0xE7;
-   	   	   			OSCM |= 0x08;
-   	   	   			Nop();
-   	   	   			Nop();
-   	   	   			Nop(); 	   	   	
-
-   	   	   			GIE = 1;
-   	   	   			ADON = 1;  	   	//唤醒后开启外设
-   	   	   	   	}
-   	   	   	}
+					delay_ms(500);
+					system_sleep();
+				}
+			}
    	   	}
    	}
 }
