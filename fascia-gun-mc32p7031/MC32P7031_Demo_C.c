@@ -186,8 +186,8 @@ void pwm_on_by_gear(u8 gear)
 }
 
 // adc = v * 210
-// 0 < 6.8v    	
-// 1 > 6.8v    	1428
+// 0 < 7v    	
+// 1 > 7v    	1470
 // 2 > 7.5v    	1575
 // 3 > 7.8v    	1638
 // 4 > 8v  	   	1680
@@ -206,14 +206,14 @@ void measure_bat_level(void)
    	   	bat_level = 3;
    	} else if (adctmp > 1575) {
    	   	bat_level = 2;
-   	} else if (adctmp > 1428) {
+   	} else if (adctmp > 1470) {
    	   	bat_level = 1;
    	} else {
    	   	FLAG_LOW_BAT = 1;
    	   	bat_level = 0;
 		
 		// 关闭pwm输出
-		pwm_on_by_gear(0);
+		// pwm_on_by_gear(0);
    	}
 }
 
@@ -289,17 +289,26 @@ void led_on_by_bat(u8 n)
    	for (int i=1; i<=n; i++) {
    	   	led_on(i, 1);
    	}
-	
-   	delay_ms(1000);
 
-   	for (int i=(n+1); i<7; i++) {
+	for (int i=0; i<5; i++) {
    		IO_buff.byte = IOP0;
    		if (IO_BIT0 == 0) {
-			   break;
+		  	 return;
 		}
+   		delay_ms(100);
+	}
 
+   	for (int i=(n+1); i<7; i++) {
    	   	led_on(i, 1);
-   	   	delay_ms(1000);
+
+		for (int i=1; i<5; i++) {
+   			IO_buff.byte = IOP0;
+   			if (IO_BIT0 == 0) {
+			   return;
+			}
+
+   	   		delay_ms(100);
+		}
    	}
 }
 
@@ -319,8 +328,12 @@ void system_sleep(void)
 	GIE = 1;
 	ADON = 1;
 
-	FLAG_KEY_SHORT = 1;
-	gear_count = 201;
+
+   	IO_buff.byte = IOP0;
+   	if (IO_BIT1 == 0) {
+		FLAG_KEY_SHORT = 1;
+		gear_count = 201;
+	}
 }
 
 // 关机
@@ -467,10 +480,10 @@ void main(void)
    	   	   	   	   	delay_ms(1000);
    	   	   	   	}
    	   	   	} else {
-				// 按键没有按下, 且没有档位, 进入休眠
+				delay_ms(200);
    	   	   	   	IO_buff.byte = IOP0;
-   	   	   	   	if (IO_BIT1) {
-					delay_ms(500);
+				// 没有按键按下, 没有充电器连接，休眠
+   	   	   	   	if (IO_BIT1 == 1 && IO_BIT0 == 0) {
 					system_sleep();
 				}
 			}
